@@ -1,0 +1,66 @@
+   @host = http://localhost:3000
+
+   ### 1. Login as admin
+   # @name adminLogin
+   POST http://localhost:3000/auth/login
+   Content-Type: application/json
+
+   {"username":"admin","password":"admin123"}
+
+   ###
+   @adminToken = {{adminLogin.response.body.token}}
+
+   ### 2. Login as technician
+   # @name techLogin
+   POST http://localhost:3000/auth/login
+   Content-Type: application/json
+
+   {"username":"tech1","password":"test1234"}
+
+   ###
+   @techToken = {{techLogin.response.body.token}}
+
+   ### 3. Stock list (admin)
+   GET http://localhost:3000/parts
+   Authorization: Bearer {{adminToken}}
+
+   ### 4. Restock part 1 by 20 (admin)
+   PUT http://localhost:3000/parts/1/stock
+   Authorization: Bearer {{adminToken}}
+   Content-Type: application/json
+
+   {"add":20}
+
+   ### 5. Log usage (technician)
+   POST http://localhost:3000/usage
+   Authorization: Bearer {{techToken}}
+   Content-Type: application/json
+
+   {"job_id":1,"part_id":1,"quantity":2}
+
+   ### 6. Too much quantity
+   POST http://localhost:3000/usage
+   Authorization: Bearer {{techToken}}
+   Content-Type: application/json
+
+   {"job_id":1,"part_id":2,"quantity":99}
+
+   ### 7. Technician tries to restock
+   PUT http://localhost:3000/parts/1/stock
+   Authorization: Bearer {{techToken}}
+   Content-Type: application/json
+
+   {"add":5}
+
+   ### 8. No token
+   GET http://localhost:3000/parts
+
+   ### 9. Deactivate technician (admin)
+   PUT http://localhost:3000/users/2/deactivate
+   Authorization: Bearer {{adminToken}}
+
+   ### 10. Tech login after deactivation
+   POST http://localhost:3000/auth/login
+   Content-Type: application/json
+
+   {"username":"tech1","password":"test1234"}

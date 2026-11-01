@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>PartTrack</title></head>
+<body>
+  <h1>PartTrack</h1>
+  <p>Backend is running. Log in to see the stock list.</p>
+
+  <form id="login">
+    <input id="username" placeholder="username" required>
+    <input id="password" type="password" placeholder="password" required>
+    <button>Login</button>
+  </form>
+
+  <pre id="output"></pre>
+
+  <script>
+    document.getElementById('login').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const out = document.getElementById('output');
+
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: document.getElementById('username').value,
+          password: document.getElementById('password').value
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) { out.textContent = data.error; return; }
+
+      const parts = await fetch('/parts', {
+        headers: { Authorization: 'Bearer ' + data.token }
+      });
+      out.textContent = JSON.stringify(await parts.json(), null, 2);
+    });
+  </script>
+</body>
+</html>
