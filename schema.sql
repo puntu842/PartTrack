@@ -1,3 +1,5 @@
+-- Setting up the database schema
+
 CREATE DATABASE IF NOT EXISTS parttrack;
 USE parttrack;
 
@@ -114,3 +116,31 @@ BEGIN
 END //
 
 DELIMITER ;
+
+-- Show the created tables, triggers, and procedures
+
+SHOW TABLES;
+SHOW TRIGGERS;
+SHOW PROCEDURE STATUS WHERE Db = 'parttrack';
+
+-- Insert sample data
+
+INSERT INTO part (name, sku, current_stock, reorder_point) VALUES
+('Brake pad set','BP-001',10,5),
+('Oil filter','OF-002',3,5);
+INSERT INTO vehicle (owner_id, vin, make, model, model_year, powertrain_type) VALUES 
+(1,'JTDKN3DU0A0000001','Toyota','Prius',2018,'Hybrid');
+INSERT INTO job (vehicle_id, technician_id, status, description)
+VALUES (
+  (SELECT vehicle_id FROM vehicle WHERE vin = 'JTDKN3DU0A0000001'),
+  (SELECT user_id FROM user_account WHERE username = 'tech1'),
+  'In_service',
+  'Brake service'
+);
+
+-- Select statements to verify the data
+
+SELECT user_id, username, role FROM user_account;
+SELECT job_id, vehicle_id, technician_id FROM job;
+SELECT part_id, name FROM part;
+SELECT user_id, username, role, is_active FROM user_account;
